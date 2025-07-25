@@ -29,8 +29,8 @@ A lightweight C# Windows Forms application to play MP3 files from a selected dir
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/winforms-mp3-crossfade.git
-cd winforms-mp3-crossfade
+git clone https://github.com/theobscenezen/autofade-music-player
+cd autofade-music-player
 ```
 
 2. Open the solution in Visual Studio.
