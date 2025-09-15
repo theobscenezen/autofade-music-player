@@ -9,8 +9,13 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="CoreOSC" Version="1.0.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.7" />
       <PackageReference Include="NAudio" Version="2.2.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Services\" />
     </ItemGroup>
 
 </Project>

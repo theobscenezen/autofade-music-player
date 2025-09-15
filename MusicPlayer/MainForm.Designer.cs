@@ -48,6 +48,8 @@ partial class MainForm
         lblAutofade = new System.Windows.Forms.Label();
         textBoxAutofade = new System.Windows.Forms.TextBox();
         btnAutofadePrev = new System.Windows.Forms.Button();
+        lblOscPrefix = new System.Windows.Forms.Label();
+        textBoxOscPrefix = new System.Windows.Forms.TextBox();
         ((System.ComponentModel.ISupportInitialize)volumeSlider).BeginInit();
         SuspendLayout();
         // 
@@ -60,7 +62,7 @@ partial class MainForm
         // btnOpenFolder
         // 
         btnOpenFolder.Image = ((System.Drawing.Image)resources.GetObject("btnOpenFolder.Image"));
-        btnOpenFolder.Location = new System.Drawing.Point(12, 12);
+        btnOpenFolder.Location = new System.Drawing.Point(12, 431);
         btnOpenFolder.Name = "btnOpenFolder";
         btnOpenFolder.Size = new System.Drawing.Size(46, 46);
         btnOpenFolder.TabIndex = 2;
@@ -69,7 +71,7 @@ partial class MainForm
         // 
         // label1
         // 
-        label1.Location = new System.Drawing.Point(73, 28);
+        label1.Location = new System.Drawing.Point(73, 447);
         label1.Name = "label1";
         label1.Size = new System.Drawing.Size(95, 26);
         label1.TabIndex = 3;
@@ -77,7 +79,7 @@ partial class MainForm
         // 
         // label2
         // 
-        label2.Location = new System.Drawing.Point(150, 28);
+        label2.Location = new System.Drawing.Point(150, 447);
         label2.Name = "label2";
         label2.Size = new System.Drawing.Size(536, 28);
         label2.TabIndex = 4;
@@ -156,16 +158,17 @@ partial class MainForm
         // 
         // listBoxPlaylist
         // 
+        listBoxPlaylist.Dock = System.Windows.Forms.DockStyle.Top;
         listBoxPlaylist.FormattingEnabled = true;
         listBoxPlaylist.ItemHeight = 15;
-        listBoxPlaylist.Location = new System.Drawing.Point(12, 103);
+        listBoxPlaylist.Location = new System.Drawing.Point(0, 0);
         listBoxPlaylist.Name = "listBoxPlaylist";
-        listBoxPlaylist.Size = new System.Drawing.Size(934, 214);
+        listBoxPlaylist.Size = new System.Drawing.Size(958, 289);
         listBoxPlaylist.TabIndex = 14;
         // 
         // chckInstantPlayback
         // 
-        chckInstantPlayback.Location = new System.Drawing.Point(12, 76);
+        chckInstantPlayback.Location = new System.Drawing.Point(12, 495);
         chckInstantPlayback.Name = "chckInstantPlayback";
         chckInstantPlayback.Size = new System.Drawing.Size(113, 21);
         chckInstantPlayback.TabIndex = 15;
@@ -182,7 +185,7 @@ partial class MainForm
         // 
         // lblAutofade
         // 
-        lblAutofade.Location = new System.Drawing.Point(684, 327);
+        lblAutofade.Location = new System.Drawing.Point(684, 330);
         lblAutofade.Name = "lblAutofade";
         lblAutofade.Size = new System.Drawing.Size(262, 20);
         lblAutofade.TabIndex = 17;
@@ -206,11 +209,30 @@ partial class MainForm
         btnAutofadePrev.TabIndex = 19;
         btnAutofadePrev.UseVisualStyleBackColor = true;
         // 
-        // Form1
+        // lblOscPrefix
+        // 
+        lblOscPrefix.AutoSize = true;
+        lblOscPrefix.Location = new System.Drawing.Point(684, 399);
+        lblOscPrefix.Name = "lblOscPrefix";
+        lblOscPrefix.Size = new System.Drawing.Size(66, 15);
+        lblOscPrefix.TabIndex = 20;
+        lblOscPrefix.Text = "OSC Prefix:";
+        // 
+        // textBoxOscPrefix
+        // 
+        textBoxOscPrefix.Location = new System.Drawing.Point(697, 417);
+        textBoxOscPrefix.Name = "textBoxOscPrefix";
+        textBoxOscPrefix.Size = new System.Drawing.Size(100, 23);
+        textBoxOscPrefix.TabIndex = 21;
+        textBoxOscPrefix.Text = "player";
+        // 
+        // MainForm
         // 
         AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
         AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-        ClientSize = new System.Drawing.Size(958, 411);
+        ClientSize = new System.Drawing.Size(958, 540);
+        Controls.Add(textBoxOscPrefix);
+        Controls.Add(lblOscPrefix);
         Controls.Add(btnAutofadePrev);
         Controls.Add(textBoxAutofade);
         Controls.Add(lblAutofade);
@@ -263,6 +285,9 @@ partial class MainForm
     private System.Windows.Forms.Button btnOpenFolder;
 
     private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+
+    private System.Windows.Forms.Label lblOscPrefix;
+    private System.Windows.Forms.TextBox textBoxOscPrefix;
 
     #endregion
 }

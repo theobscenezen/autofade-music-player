@@ -51,6 +51,19 @@ The Next Autofade button overlaps the end of the current song with the start of 
 
 This is done using two simultaneous WaveOutEvent instances provided by NAudio.
 
+### OSC Controls
+The application supports Open Sound Control (OSC) for remote control of playback functions. You can send OSC messages to control play, pause, next, previous, autofade next, autofade previous.
+
+### Example OSC Messages
+- Play (Play from start): `/player/play`
+- Pause (Play/Pause current position): `/player/pause`
+- Next: `/player/next`
+- Previous: `/player/prev`
+- Next Autofade: `/player/next_autofade`
+- Previous Autofade: `/player/prev_autofade`
+
+The prefix "player" can be changed, to have multiple instances of the player running.
+
 🛠️ Future Enhancements
 
 📄 License
