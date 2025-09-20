@@ -50,6 +50,13 @@ partial class MainForm
         btnAutofadePrev = new System.Windows.Forms.Button();
         lblOscPrefix = new System.Windows.Forms.Label();
         textBoxOscPrefix = new System.Windows.Forms.TextBox();
+        btnStartOscListener = new System.Windows.Forms.Button();
+        comboBoxOutputDevices = new System.Windows.Forms.ComboBox();
+        lblOutputDevice = new System.Windows.Forms.Label();
+        textBoxOscPort = new System.Windows.Forms.TextBox();
+        lblOscPort = new System.Windows.Forms.Label();
+        btnStopOscListener = new System.Windows.Forms.Button();
+        lblOscRunning = new System.Windows.Forms.Label();
         ((System.ComponentModel.ISupportInitialize)volumeSlider).BeginInit();
         SuspendLayout();
         // 
@@ -196,7 +203,7 @@ partial class MainForm
         textBoxAutofade.Location = new System.Drawing.Point(697, 353);
         textBoxAutofade.MaxLength = 32;
         textBoxAutofade.Name = "textBoxAutofade";
-        textBoxAutofade.Size = new System.Drawing.Size(234, 23);
+        textBoxAutofade.Size = new System.Drawing.Size(99, 23);
         textBoxAutofade.TabIndex = 18;
         textBoxAutofade.Text = "3000";
         // 
@@ -222,17 +229,84 @@ partial class MainForm
         // 
         textBoxOscPrefix.Location = new System.Drawing.Point(697, 417);
         textBoxOscPrefix.Name = "textBoxOscPrefix";
-        textBoxOscPrefix.Size = new System.Drawing.Size(100, 23);
+        textBoxOscPrefix.Size = new System.Drawing.Size(99, 23);
         textBoxOscPrefix.TabIndex = 21;
         textBoxOscPrefix.Text = "player";
+        // 
+        // btnStartOscListener
+        // 
+        btnStartOscListener.Location = new System.Drawing.Point(851, 417);
+        btnStartOscListener.Name = "btnStartOscListener";
+        btnStartOscListener.Size = new System.Drawing.Size(95, 37);
+        btnStartOscListener.TabIndex = 22;
+        btnStartOscListener.Text = "Start OSC";
+        btnStartOscListener.UseVisualStyleBackColor = true;
+        // 
+        // comboBoxOutputDevices
+        // 
+        comboBoxOutputDevices.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+        comboBoxOutputDevices.FormattingEnabled = true;
+        comboBoxOutputDevices.Location = new System.Drawing.Point(204, 504);
+        comboBoxOutputDevices.Name = "comboBoxOutputDevices";
+        comboBoxOutputDevices.Size = new System.Drawing.Size(300, 23);
+        comboBoxOutputDevices.TabIndex = 28;
+        // 
+        // lblOutputDevice
+        // 
+        lblOutputDevice.Location = new System.Drawing.Point(204, 481);
+        lblOutputDevice.Name = "lblOutputDevice";
+        lblOutputDevice.Size = new System.Drawing.Size(120, 23);
+        lblOutputDevice.TabIndex = 27;
+        lblOutputDevice.Text = "Output Device:";
+        // 
+        // textBoxOscPort
+        // 
+        textBoxOscPort.Location = new System.Drawing.Point(697, 475);
+        textBoxOscPort.Name = "textBoxOscPort";
+        textBoxOscPort.Size = new System.Drawing.Size(99, 23);
+        textBoxOscPort.TabIndex = 23;
+        textBoxOscPort.Text = "9000";
+        // 
+        // lblOscPort
+        // 
+        lblOscPort.AutoSize = true;
+        lblOscPort.Location = new System.Drawing.Point(684, 457);
+        lblOscPort.Name = "lblOscPort";
+        lblOscPort.Size = new System.Drawing.Size(58, 15);
+        lblOscPort.TabIndex = 24;
+        lblOscPort.Text = "OSC Port:";
+        // 
+        // btnStopOscListener
+        // 
+        btnStopOscListener.Location = new System.Drawing.Point(851, 467);
+        btnStopOscListener.Name = "btnStopOscListener";
+        btnStopOscListener.Size = new System.Drawing.Size(95, 37);
+        btnStopOscListener.TabIndex = 25;
+        btnStopOscListener.Text = "Stop OSC";
+        btnStopOscListener.UseVisualStyleBackColor = true;
+        // 
+        // lblOscRunning
+        // 
+        lblOscRunning.Location = new System.Drawing.Point(562, 507);
+        lblOscRunning.Name = "lblOscRunning";
+        lblOscRunning.Size = new System.Drawing.Size(383, 27);
+        lblOscRunning.TabIndex = 26;
+        lblOscRunning.Text = "OSC listener waiting for start.";
         // 
         // MainForm
         // 
         AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
         AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         ClientSize = new System.Drawing.Size(958, 540);
+        Controls.Add(lblOscRunning);
+        Controls.Add(btnStopOscListener);
+        Controls.Add(lblOscPort);
+        Controls.Add(textBoxOscPort);
+        Controls.Add(btnStartOscListener);
         Controls.Add(textBoxOscPrefix);
         Controls.Add(lblOscPrefix);
+        Controls.Add(comboBoxOutputDevices);
+        Controls.Add(lblOutputDevice);
         Controls.Add(btnAutofadePrev);
         Controls.Add(textBoxAutofade);
         Controls.Add(lblAutofade);
@@ -255,6 +329,14 @@ partial class MainForm
         ResumeLayout(false);
         PerformLayout();
     }
+
+    private System.Windows.Forms.Label lblOscRunning;
+
+    private System.Windows.Forms.Button btnStopOscListener;
+
+    private System.Windows.Forms.Button btnStartOscListener;
+    private System.Windows.Forms.TextBox textBoxOscPort;
+    private System.Windows.Forms.Label lblOscPort;
 
     private System.Windows.Forms.Button btnAutofadePrev;
 
@@ -289,5 +371,9 @@ partial class MainForm
     private System.Windows.Forms.Label lblOscPrefix;
     private System.Windows.Forms.TextBox textBoxOscPrefix;
 
+    private System.Windows.Forms.ComboBox comboBoxOutputDevices;
+    private System.Windows.Forms.Label lblOutputDevice;
+
     #endregion
 }
+

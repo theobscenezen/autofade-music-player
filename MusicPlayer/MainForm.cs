@@ -16,9 +16,10 @@ public partial class MainForm : Form
 
     private readonly object _fadeLock = new();
 
-    private Thread oscListenerThread;
-    private bool oscRunning = false;
-    private const int OscPort = 9000;
+    private UdpClient? _oscUdpClient;
+    private Thread? _oscListenerThread;
+    private bool _oscRunning = false;
+    private int _oscPort = 9000;
 
     private int _currentIndex;
     private bool _isFading = false;
@@ -29,10 +30,21 @@ public partial class MainForm : Form
     private WaveOutEvent? _outputDeviceNext;
     private AudioFileReader? _audioReaderNext;
 
+    private int _selectedOutputDeviceNumber = -1;
+
+    private class OutputDeviceItem
+    {
+        public int DeviceNumber { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public override string ToString() => Name;
+    }
+
     public MainForm()
     {
         InitializeComponent();
         volumeSlider.ValueChanged += VolumeSlider_ValueChanged;
+        comboBoxOutputDevices.SelectedIndexChanged += ComboBoxOutputDevices_SelectedIndexChanged;
+        PopulateOutputDevices();
 
         var toolTip = new ToolTip();
 
@@ -43,6 +55,8 @@ public partial class MainForm : Form
         btnAutofadeNext.Click += BtnAutofadeNext_Click;
         btnAutofadePrev.Click += BtnAutofadePrev_Click;
         btnStop.Click += BtnStop_Click;
+        btnStartOscListener.Click += BtnStartOscListener_Click;
+        btnStopOscListener.Click += BtnStopOscListener_Click;
 
         toolTip.SetToolTip(btnPlay, "Start/Restart track from 0");
         toolTip.SetToolTip(btnPause, "Pause or resume");
@@ -59,32 +73,69 @@ public partial class MainForm : Form
         listBoxPlaylist.DoubleClick += ListBoxPlaylist_SelectedIndexChangedDouble;
 
         textBoxOscPrefix.TextChanged += TextBoxOscPrefix_TextChanged;
+        textBoxOscPort.TextChanged += TextBoxOscPort_TextChanged;
+    }
+    
+    private void StopOscListener()
+    {
+        try
+        {
+            // Schließe und entsorge den UdpClient, damit ReceiveMessageAsync sofort abbricht
+            _oscUdpClient?.Close();
+            _oscUdpClient?.Dispose();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error while closing OSC UDP client: {ex.Message}");
+        }
+        finally
+        {
+            _oscUdpClient = null;
+        }
 
-        InitializeOscListener();
+        _oscListenerThread?.Join();
+        _oscListenerThread = null;
+        lblOscRunning.Text = "OSC Listener Stopped";
     }
 
     private void InitializeOscListener()
     {
-        oscRunning = true;
+        _oscRunning = true;
+        
+        try
+        {
+            _oscUdpClient = new UdpClient(new IPEndPoint(IPAddress.Any, _oscPort));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to bind OSC UDP port {_oscPort}: {ex.Message}");
+            lblOscRunning.Invoke(() => lblOscRunning.Text = $"Failed to bind port {_oscPort}");
+            _oscUdpClient = null;
+            _oscRunning = false;
+            return;
+        }
 
-        oscListenerThread = new Thread(async void () =>
+        _oscListenerThread = new Thread(async void () =>
         {
             try
             {
-                IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, OscPort);
-                using var udpClient = new UdpClient(endPoint);
-                while (oscRunning)
+                lblOscRunning.Invoke(() =>
+                {
+                    lblOscRunning.Text = $"OSC Listener Running on Port {_oscPort}"; 
+                });
+                while (_oscRunning && _oscUdpClient != null)
                 {
                     try
                     {
-                        var response = await udpClient.ReceiveMessageAsync();
+                        var response = await _oscUdpClient.ReceiveMessageAsync();
+                        if (!_oscRunning) break;
                         HandleOscMessage(response);
                         Console.WriteLine($"Received OSC message: {response.Address.Value}");
                     }
                     catch (SocketException ex)
                     {
                         // ignore if closed
-                        if (oscRunning) Console.WriteLine($"OSC socket error: {ex.Message}");
+                        if (_oscRunning) Console.WriteLine($"OSC socket error: {ex.Message}");
                     }
                 }
             }
@@ -92,13 +143,27 @@ public partial class MainForm : Form
             {
                 Console.WriteLine("Error in OSC listener thread:");
                 Console.WriteLine(e.Message);
+                lblOscRunning.Invoke(() =>
+                {
+                    lblOscRunning.Text = "Error in OSC listener thread."; 
+                });
+            }
+            finally
+            {
+                try
+                {
+                    _oscUdpClient?.Close();
+                    _oscUdpClient?.Dispose();
+                }
+                catch { }
+                _oscUdpClient = null;
             }
         })
         {
             IsBackground = true
         };
 
-        oscListenerThread.Start();
+        _oscListenerThread.Start();
     }
 
     private void TextBoxOscPrefix_TextChanged(object? sender, EventArgs e)
@@ -107,6 +172,21 @@ public partial class MainForm : Form
         if (string.IsNullOrWhiteSpace(textBoxOscPrefix.Text))
         {
             textBoxOscPrefix.Text = "player";
+        }
+    }
+
+    private void TextBoxOscPort_TextChanged(object? sender, EventArgs e)
+    {
+        // Ensure the prefix is not empty
+        if (string.IsNullOrWhiteSpace(textBoxOscPrefix.Text))
+        {
+            textBoxOscPort.Text = "9000";
+        }
+
+        // Validate and update the port number
+        if (int.TryParse(textBoxOscPort.Text, out int port) && port > 1000 && port <= 65535)
+        {
+            _oscPort = port;
         }
     }
 
@@ -228,6 +308,12 @@ public partial class MainForm : Form
 
         _audioReaderCurrent = new AudioFileReader(_playlist[_currentIndex]);
         _outputDeviceCurrent = new WaveOutEvent();
+        try
+        {
+            if (_selectedOutputDeviceNumber >= 0)
+                _outputDeviceCurrent.DeviceNumber = _selectedOutputDeviceNumber;
+        }
+        catch { }
         _outputDeviceCurrent.Init(_audioReaderCurrent);
         _audioReaderCurrent.Volume = volumeSlider.Value / 100f;
 
@@ -333,6 +419,12 @@ public partial class MainForm : Form
                 {
                     _audioReaderNext = new AudioFileReader(_playlist[nextIndex]);
                     _outputDeviceNext = new WaveOutEvent();
+                    try
+                    {
+                        if (_selectedOutputDeviceNumber >= 0)
+                            _outputDeviceNext.DeviceNumber = _selectedOutputDeviceNumber;
+                    }
+                    catch { }
                     _outputDeviceNext.Init(_audioReaderNext);
                     _audioReaderNext.Volume = 0f;
                     _outputDeviceNext.Play();
@@ -400,7 +492,15 @@ public partial class MainForm : Form
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
         DisposeCurrentPlayback();
-        oscRunning = false;
+        _oscRunning = false;
+        
+        try
+        {
+            _oscUdpClient?.Close();
+            _oscUdpClient?.Dispose();
+        }
+        catch { }
+
         base.OnFormClosing(e);
     }
 
@@ -413,10 +513,53 @@ public partial class MainForm : Form
     private void BtnPlay_Click(object? sender, EventArgs e) => PlayCurrent();
 
     private void BtnStop_Click(object? sender, EventArgs e) => DisposeCurrentPlayback();
+    private void BtnStartOscListener_Click(object? sender, EventArgs e) => InitializeOscListener();
+    private void BtnStopOscListener_Click(object? sender, EventArgs e) => StopOscListener();
 
     private void BtnPause_Click(object? sender, EventArgs e) => Pause();
     private void BtnPrevious_Click(object? sender, EventArgs e) => PlayPrevious();
     private void BtnNext_Click(object? sender, EventArgs e) => PlayNext();
     private async void BtnAutofadeNext_Click(object? sender, EventArgs e) => await AutofadeToNext();
     private async void BtnAutofadePrev_Click(object? sender, EventArgs e) => await AutofadeToPrevious();
+
+    private void PopulateOutputDevices()
+    {
+        try
+        {
+            comboBoxOutputDevices.Items.Clear();
+            int count = WaveOut.DeviceCount;
+            for (int i = 0; i < count; i++)
+            {
+                var caps = WaveOut.GetCapabilities(i);
+                comboBoxOutputDevices.Items.Add(new OutputDeviceItem { DeviceNumber = i, Name = caps.ProductName });
+            }
+
+            if (comboBoxOutputDevices.Items.Count > 0)
+            {
+                comboBoxOutputDevices.SelectedIndex = 0;
+                var sel = comboBoxOutputDevices.SelectedItem as OutputDeviceItem;
+                if (sel != null)
+                    _selectedOutputDeviceNumber = sel.DeviceNumber;
+                else
+                    _selectedOutputDeviceNumber = -1;
+            }
+            else
+            {
+                // No devices found, leave default (-1)
+                _selectedOutputDeviceNumber = -1;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error populating output devices: {ex.Message}");
+        }
+    }
+
+    private void ComboBoxOutputDevices_SelectedIndexChanged(object? sender, EventArgs e)
+    {
+        if (comboBoxOutputDevices.SelectedItem is OutputDeviceItem item)
+        {
+            _selectedOutputDeviceNumber = item.DeviceNumber;
+        }
+    }
 }
