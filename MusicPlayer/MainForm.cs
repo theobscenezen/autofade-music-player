@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Sockets;
 using CoreOSC;
 using CoreOSC.IO;
+using MusicPlayer.Comparer;
 using NAudio.Wave;
 
 namespace MusicPlayer;
@@ -287,7 +288,7 @@ public partial class MainForm : Form
 
     private void FetchFilesFromFolder()
     {
-        _playlist.Clear();
+        _playlist.Clear(); 
         var files = Directory.GetFiles(_folderName, "*", SearchOption.TopDirectoryOnly);
 
         var validExtensions = new[] { ".mp3", ".wav", ".ogg" };
@@ -298,6 +299,8 @@ public partial class MainForm : Form
                 _playlist.Add(file);
             }
         }
+        
+        _playlist.Sort(new FileNameComparer());
     }
 
     private void PlayCurrent()
