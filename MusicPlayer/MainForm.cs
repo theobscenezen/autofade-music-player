@@ -34,6 +34,8 @@ public partial class MainForm : Form
     private AudioFileReader? _audioReaderNext;
 
     private string _selectedOutputDeviceId = string.Empty;
+    
+    private System.Windows.Forms.Timer? _updateTimer;
 
     private class OutputDeviceItem
     {
@@ -77,6 +79,64 @@ public partial class MainForm : Form
 
         textBoxOscPrefix.TextChanged += TextBoxOscPrefix_TextChanged;
         textBoxOscPort.TextChanged += TextBoxOscPort_TextChanged;
+        
+        // Initialize update timer for playback status and track time
+        _updateTimer = new System.Windows.Forms.Timer();
+        _updateTimer.Interval = 100; // Update every 100ms
+        _updateTimer.Tick += UpdateTimer_Tick;
+        _updateTimer.Start();
+    }
+    
+    private void UpdateTimer_Tick(object? sender, EventArgs e)
+    {
+        UpdatePlaybackStatus();
+        UpdateTrackTime();
+    }
+    
+    private void UpdatePlaybackStatus()
+    {
+        if (_outputDeviceCurrent?.PlaybackState == PlaybackState.Playing)
+        {
+            lblPlaybackStatus.Text = "Playing";
+        }
+        else if (_outputDeviceCurrent?.PlaybackState == PlaybackState.Paused)
+        {
+            lblPlaybackStatus.Text = "Paused";
+        }
+        else
+        {
+            lblPlaybackStatus.Text = "Stopped";
+        }
+    }
+    
+    private void UpdateTrackTime()
+    {
+        if (_audioReaderCurrent != null && _outputDeviceCurrent != null)
+        {
+            var currentTime = _audioReaderCurrent.CurrentTime;
+            var totalTime = _audioReaderCurrent.TotalTime;
+            
+            string currentStr = FormatTime(currentTime);
+            string totalStr = FormatTime(totalTime);
+            
+            lblTrackTime.Text = $"{currentStr} / {totalStr}";
+        }
+        else
+        {
+            lblTrackTime.Text = "0:00 / 0:00";
+        }
+    }
+    
+    private string FormatTime(TimeSpan time)
+    {
+        if (time.TotalHours >= 1)
+        {
+            return $"{(int)time.TotalHours}:{time.Minutes:D2}:{time.Seconds:D2}";
+        }
+        else
+        {
+            return $"{time.Minutes}:{time.Seconds:D2}";
+        }
     }
     
     private void StopOscListener()
@@ -610,3 +670,4 @@ public partial class MainForm : Form
         }
     }
 }
+

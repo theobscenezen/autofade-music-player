@@ -57,6 +57,8 @@ partial class MainForm
         lblOscPort = new System.Windows.Forms.Label();
         btnStopOscListener = new System.Windows.Forms.Button();
         lblOscRunning = new System.Windows.Forms.Label();
+        lblPlaybackStatus = new System.Windows.Forms.Label();
+        lblTrackTime = new System.Windows.Forms.Label();
         ((System.ComponentModel.ISupportInitialize)volumeSlider).BeginInit();
         SuspendLayout();
         // 
@@ -69,7 +71,7 @@ partial class MainForm
         // btnOpenFolder
         // 
         btnOpenFolder.Image = ((System.Drawing.Image)resources.GetObject("btnOpenFolder.Image"));
-        btnOpenFolder.Location = new System.Drawing.Point(12, 431);
+        btnOpenFolder.Location = new System.Drawing.Point(14, 397);
         btnOpenFolder.Name = "btnOpenFolder";
         btnOpenFolder.Size = new System.Drawing.Size(46, 46);
         btnOpenFolder.TabIndex = 2;
@@ -78,7 +80,7 @@ partial class MainForm
         // 
         // label1
         // 
-        label1.Location = new System.Drawing.Point(73, 447);
+        label1.Location = new System.Drawing.Point(75, 413);
         label1.Name = "label1";
         label1.Size = new System.Drawing.Size(95, 26);
         label1.TabIndex = 3;
@@ -86,16 +88,16 @@ partial class MainForm
         // 
         // label2
         // 
-        label2.Location = new System.Drawing.Point(150, 447);
+        label2.Location = new System.Drawing.Point(157, 413);
         label2.Name = "label2";
-        label2.Size = new System.Drawing.Size(536, 28);
+        label2.Size = new System.Drawing.Size(399, 28);
         label2.TabIndex = 4;
         label2.Text = "(Choose a folder)";
         // 
         // btnPlay
         // 
         btnPlay.Image = ((System.Drawing.Image)resources.GetObject("btnPlay.Image"));
-        btnPlay.Location = new System.Drawing.Point(458, 343);
+        btnPlay.Location = new System.Drawing.Point(405, 352);
         btnPlay.Name = "btnPlay";
         btnPlay.Size = new System.Drawing.Size(46, 46);
         btnPlay.TabIndex = 5;
@@ -104,7 +106,7 @@ partial class MainForm
         // btnPause
         // 
         btnPause.Image = ((System.Drawing.Image)resources.GetObject("btnPause.Image"));
-        btnPause.Location = new System.Drawing.Point(406, 343);
+        btnPause.Location = new System.Drawing.Point(353, 352);
         btnPause.Name = "btnPause";
         btnPause.Size = new System.Drawing.Size(46, 46);
         btnPause.TabIndex = 6;
@@ -113,7 +115,7 @@ partial class MainForm
         // btnPrevious
         // 
         btnPrevious.Image = ((System.Drawing.Image)resources.GetObject("btnPrevious.Image"));
-        btnPrevious.Location = new System.Drawing.Point(354, 343);
+        btnPrevious.Location = new System.Drawing.Point(301, 352);
         btnPrevious.Name = "btnPrevious";
         btnPrevious.Size = new System.Drawing.Size(46, 46);
         btnPrevious.TabIndex = 7;
@@ -122,7 +124,7 @@ partial class MainForm
         // btnNext
         // 
         btnNext.Image = ((System.Drawing.Image)resources.GetObject("btnNext.Image"));
-        btnNext.Location = new System.Drawing.Point(562, 343);
+        btnNext.Location = new System.Drawing.Point(509, 352);
         btnNext.Name = "btnNext";
         btnNext.Size = new System.Drawing.Size(46, 46);
         btnNext.TabIndex = 8;
@@ -131,7 +133,7 @@ partial class MainForm
         // btnAutofadeNext
         // 
         btnAutofadeNext.Image = ((System.Drawing.Image)resources.GetObject("btnAutofadeNext.Image"));
-        btnAutofadeNext.Location = new System.Drawing.Point(614, 343);
+        btnAutofadeNext.Location = new System.Drawing.Point(509, 301);
         btnAutofadeNext.Name = "btnAutofadeNext";
         btnAutofadeNext.Size = new System.Drawing.Size(46, 46);
         btnAutofadeNext.TabIndex = 9;
@@ -157,7 +159,7 @@ partial class MainForm
         // btnStop
         // 
         btnStop.Image = ((System.Drawing.Image)resources.GetObject("btnStop.Image"));
-        btnStop.Location = new System.Drawing.Point(510, 343);
+        btnStop.Location = new System.Drawing.Point(457, 352);
         btnStop.Name = "btnStop";
         btnStop.Size = new System.Drawing.Size(46, 46);
         btnStop.TabIndex = 12;
@@ -170,12 +172,12 @@ partial class MainForm
         listBoxPlaylist.ItemHeight = 15;
         listBoxPlaylist.Location = new System.Drawing.Point(0, 0);
         listBoxPlaylist.Name = "listBoxPlaylist";
-        listBoxPlaylist.Size = new System.Drawing.Size(958, 289);
+        listBoxPlaylist.Size = new System.Drawing.Size(806, 289);
         listBoxPlaylist.TabIndex = 14;
         // 
         // chckInstantPlayback
         // 
-        chckInstantPlayback.Location = new System.Drawing.Point(12, 495);
+        chckInstantPlayback.Location = new System.Drawing.Point(14, 461);
         chckInstantPlayback.Name = "chckInstantPlayback";
         chckInstantPlayback.Size = new System.Drawing.Size(113, 21);
         chckInstantPlayback.TabIndex = 15;
@@ -192,7 +194,7 @@ partial class MainForm
         // 
         // lblAutofade
         // 
-        lblAutofade.Location = new System.Drawing.Point(684, 330);
+        lblAutofade.Location = new System.Drawing.Point(562, 301);
         lblAutofade.Name = "lblAutofade";
         lblAutofade.Size = new System.Drawing.Size(262, 20);
         lblAutofade.TabIndex = 17;
@@ -200,7 +202,7 @@ partial class MainForm
         // 
         // textBoxAutofade
         // 
-        textBoxAutofade.Location = new System.Drawing.Point(697, 353);
+        textBoxAutofade.Location = new System.Drawing.Point(575, 324);
         textBoxAutofade.MaxLength = 32;
         textBoxAutofade.Name = "textBoxAutofade";
         textBoxAutofade.Size = new System.Drawing.Size(99, 23);
@@ -210,7 +212,7 @@ partial class MainForm
         // btnAutofadePrev
         // 
         btnAutofadePrev.Image = ((System.Drawing.Image)resources.GetObject("btnAutofadePrev.Image"));
-        btnAutofadePrev.Location = new System.Drawing.Point(302, 343);
+        btnAutofadePrev.Location = new System.Drawing.Point(301, 301);
         btnAutofadePrev.Name = "btnAutofadePrev";
         btnAutofadePrev.Size = new System.Drawing.Size(46, 46);
         btnAutofadePrev.TabIndex = 19;
@@ -219,7 +221,7 @@ partial class MainForm
         // lblOscPrefix
         // 
         lblOscPrefix.AutoSize = true;
-        lblOscPrefix.Location = new System.Drawing.Point(684, 399);
+        lblOscPrefix.Location = new System.Drawing.Point(562, 370);
         lblOscPrefix.Name = "lblOscPrefix";
         lblOscPrefix.Size = new System.Drawing.Size(66, 15);
         lblOscPrefix.TabIndex = 20;
@@ -227,7 +229,7 @@ partial class MainForm
         // 
         // textBoxOscPrefix
         // 
-        textBoxOscPrefix.Location = new System.Drawing.Point(697, 417);
+        textBoxOscPrefix.Location = new System.Drawing.Point(575, 388);
         textBoxOscPrefix.Name = "textBoxOscPrefix";
         textBoxOscPrefix.Size = new System.Drawing.Size(99, 23);
         textBoxOscPrefix.TabIndex = 21;
@@ -235,7 +237,7 @@ partial class MainForm
         // 
         // btnStartOscListener
         // 
-        btnStartOscListener.Location = new System.Drawing.Point(851, 417);
+        btnStartOscListener.Location = new System.Drawing.Point(680, 382);
         btnStartOscListener.Name = "btnStartOscListener";
         btnStartOscListener.Size = new System.Drawing.Size(95, 37);
         btnStartOscListener.TabIndex = 22;
@@ -246,14 +248,14 @@ partial class MainForm
         // 
         comboBoxOutputDevices.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
         comboBoxOutputDevices.FormattingEnabled = true;
-        comboBoxOutputDevices.Location = new System.Drawing.Point(204, 504);
+        comboBoxOutputDevices.Location = new System.Drawing.Point(135, 462);
         comboBoxOutputDevices.Name = "comboBoxOutputDevices";
         comboBoxOutputDevices.Size = new System.Drawing.Size(300, 23);
         comboBoxOutputDevices.TabIndex = 28;
         // 
         // lblOutputDevice
         // 
-        lblOutputDevice.Location = new System.Drawing.Point(204, 481);
+        lblOutputDevice.Location = new System.Drawing.Point(135, 439);
         lblOutputDevice.Name = "lblOutputDevice";
         lblOutputDevice.Size = new System.Drawing.Size(120, 23);
         lblOutputDevice.TabIndex = 27;
@@ -261,7 +263,7 @@ partial class MainForm
         // 
         // textBoxOscPort
         // 
-        textBoxOscPort.Location = new System.Drawing.Point(697, 475);
+        textBoxOscPort.Location = new System.Drawing.Point(575, 446);
         textBoxOscPort.Name = "textBoxOscPort";
         textBoxOscPort.Size = new System.Drawing.Size(99, 23);
         textBoxOscPort.TabIndex = 23;
@@ -270,7 +272,7 @@ partial class MainForm
         // lblOscPort
         // 
         lblOscPort.AutoSize = true;
-        lblOscPort.Location = new System.Drawing.Point(684, 457);
+        lblOscPort.Location = new System.Drawing.Point(562, 428);
         lblOscPort.Name = "lblOscPort";
         lblOscPort.Size = new System.Drawing.Size(58, 15);
         lblOscPort.TabIndex = 24;
@@ -278,7 +280,7 @@ partial class MainForm
         // 
         // btnStopOscListener
         // 
-        btnStopOscListener.Location = new System.Drawing.Point(851, 467);
+        btnStopOscListener.Location = new System.Drawing.Point(680, 432);
         btnStopOscListener.Name = "btnStopOscListener";
         btnStopOscListener.Size = new System.Drawing.Size(95, 37);
         btnStopOscListener.TabIndex = 25;
@@ -287,17 +289,38 @@ partial class MainForm
         // 
         // lblOscRunning
         // 
-        lblOscRunning.Location = new System.Drawing.Point(562, 507);
+        lblOscRunning.Location = new System.Drawing.Point(509, 472);
         lblOscRunning.Name = "lblOscRunning";
         lblOscRunning.Size = new System.Drawing.Size(383, 27);
         lblOscRunning.TabIndex = 26;
         lblOscRunning.Text = "OSC listener waiting for start.";
         // 
+        // lblPlaybackStatus
+        // 
+        lblPlaybackStatus.AutoSize = true;
+        lblPlaybackStatus.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+        lblPlaybackStatus.Location = new System.Drawing.Point(14, 295);
+        lblPlaybackStatus.Name = "lblPlaybackStatus";
+        lblPlaybackStatus.Size = new System.Drawing.Size(54, 15);
+        lblPlaybackStatus.TabIndex = 29;
+        lblPlaybackStatus.Text = "Stopped";
+        // 
+        // lblTrackTime
+        // 
+        lblTrackTime.AutoSize = true;
+        lblTrackTime.Location = new System.Drawing.Point(120, 295);
+        lblTrackTime.Name = "lblTrackTime";
+        lblTrackTime.Size = new System.Drawing.Size(60, 15);
+        lblTrackTime.TabIndex = 30;
+        lblTrackTime.Text = "0:00 / 0:00";
+        // 
         // MainForm
         // 
         AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
         AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-        ClientSize = new System.Drawing.Size(958, 540);
+        ClientSize = new System.Drawing.Size(806, 503);
+        Controls.Add(lblTrackTime);
+        Controls.Add(lblPlaybackStatus);
         Controls.Add(lblOscRunning);
         Controls.Add(btnStopOscListener);
         Controls.Add(lblOscPort);
@@ -329,6 +352,9 @@ partial class MainForm
         ResumeLayout(false);
         PerformLayout();
     }
+
+    private System.Windows.Forms.Label lblPlaybackStatus;
+    private System.Windows.Forms.Label lblTrackTime;
 
     private System.Windows.Forms.Label lblOscRunning;
 
