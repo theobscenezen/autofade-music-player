@@ -2,8 +2,10 @@ using System.Net;
 using System.Net.Sockets;
 using CoreOSC;
 using CoreOSC.IO;
-using MusicPlayer.Comparer;
+using NAudio.CoreAudioApi;
 using NAudio.Wave;
+using MusicPlayer.Comparer;
+using NAudio.Wave.SampleProviders;
 
 namespace MusicPlayer;
 
@@ -25,17 +27,17 @@ public partial class MainForm : Form
     private int _currentIndex;
     private bool _isFading = false;
 
-    private WaveOutEvent? _outputDeviceCurrent;
+    private IWavePlayer? _outputDeviceCurrent;
     private AudioFileReader? _audioReaderCurrent;
 
-    private WaveOutEvent? _outputDeviceNext;
+    private IWavePlayer? _outputDeviceNext;
     private AudioFileReader? _audioReaderNext;
 
-    private int _selectedOutputDeviceNumber = -1;
+    private string _selectedOutputDeviceId = string.Empty;
 
     private class OutputDeviceItem
     {
-        public int DeviceNumber { get; set; }
+        public string DeviceId { get; set; }
         public string Name { get; set; } = string.Empty;
         public override string ToString() => Name;
     }
@@ -165,6 +167,28 @@ public partial class MainForm : Form
         };
 
         _oscListenerThread.Start();
+    }
+
+    private IWavePlayer CreateOutputPlayer()
+    {
+        if (!string.IsNullOrEmpty(_selectedOutputDeviceId))
+        {
+            try
+            {
+                var enumerator = new MMDeviceEnumerator();
+                var device = enumerator.GetDevice(_selectedOutputDeviceId);
+                // Use shared mode so normal desktop audio routing still works
+                var wasapi = new WasapiOut(device, AudioClientShareMode.Shared, true, 200);
+                return wasapi;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Could not create WasapiOut for device {_selectedOutputDeviceId}: {ex.Message}");
+            }
+        }
+
+        // Fallback to WaveOutEvent if MMDevice couldn't be used
+        return new WaveOutEvent();
     }
 
     private void TextBoxOscPrefix_TextChanged(object? sender, EventArgs e)
@@ -310,14 +334,23 @@ public partial class MainForm : Form
         if (_playlist.Count == 0 || _currentIndex >= _playlist.Count) return;
 
         _audioReaderCurrent = new AudioFileReader(_playlist[_currentIndex]);
-        _outputDeviceCurrent = new WaveOutEvent();
-        try
+        _outputDeviceCurrent = CreateOutputPlayer();
+                try
         {
-            if (_selectedOutputDeviceNumber >= 0)
-                _outputDeviceCurrent.DeviceNumber = _selectedOutputDeviceNumber;
+            // Init with a WaveProvider wrapper (works for both WasapiOut and WaveOutEvent)
+            var waveProvider = new SampleToWaveProvider16(_audioReaderCurrent);
+            _outputDeviceCurrent.Init(waveProvider);
         }
-        catch { }
-        _outputDeviceCurrent.Init(_audioReaderCurrent);
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error initializing output device: {ex.Message}");
+            (_outputDeviceCurrent as IDisposable)?.Dispose();
+            _outputDeviceCurrent = null;
+            _audioReaderCurrent?.Dispose();
+            _audioReaderCurrent = null;
+            return;
+        }
+
         _audioReaderCurrent.Volume = volumeSlider.Value / 100f;
 
         _outputDeviceCurrent.Play();
@@ -326,15 +359,31 @@ public partial class MainForm : Form
 
     private void DisposeCurrentPlayback()
     {
-        _outputDeviceCurrent?.Stop();
-        _outputDeviceCurrent?.Dispose();
-        _audioReaderCurrent?.Dispose();
+        try
+        {
+            _outputDeviceCurrent?.Stop();
+            (_outputDeviceCurrent as IDisposable)?.Dispose();
+        }
+        catch { }
+        try
+        {
+            _audioReaderCurrent?.Dispose();
+        }
+        catch { }
         _outputDeviceCurrent = null;
         _audioReaderCurrent = null;
 
-        _outputDeviceNext?.Stop();
-        _outputDeviceNext?.Dispose();
-        _audioReaderNext?.Dispose();
+        try
+        {
+            _outputDeviceNext?.Stop();
+            (_outputDeviceNext as IDisposable)?.Dispose();
+        }
+        catch { }
+        try
+        {
+            _audioReaderNext?.Dispose();
+        }
+        catch { }
         _outputDeviceNext = null;
         _audioReaderNext = null;
     }
@@ -421,14 +470,9 @@ public partial class MainForm : Form
                 try
                 {
                     _audioReaderNext = new AudioFileReader(_playlist[nextIndex]);
-                    _outputDeviceNext = new WaveOutEvent();
-                    try
-                    {
-                        if (_selectedOutputDeviceNumber >= 0)
-                            _outputDeviceNext.DeviceNumber = _selectedOutputDeviceNumber;
-                    }
-                    catch { }
-                    _outputDeviceNext.Init(_audioReaderNext);
+                    _outputDeviceNext = CreateOutputPlayer();
+                    var nextWaveProvider = new SampleToWaveProvider16(_audioReaderNext);
+                    _outputDeviceNext.Init(nextWaveProvider);
                     _audioReaderNext.Volume = 0f;
                     _outputDeviceNext.Play();
                 }
@@ -463,7 +507,7 @@ public partial class MainForm : Form
             lock (_fadeLock)
             {
                 _outputDeviceCurrent?.Stop();
-                _outputDeviceCurrent?.Dispose();
+                (_outputDeviceCurrent as IDisposable)?.Dispose();
                 _audioReaderCurrent?.Dispose();
 
                 _outputDeviceCurrent = _outputDeviceNext;
@@ -530,11 +574,11 @@ public partial class MainForm : Form
         try
         {
             comboBoxOutputDevices.Items.Clear();
-            int count = WaveOut.DeviceCount;
-            for (int i = 0; i < count; i++)
+            var enumerator = new MMDeviceEnumerator();
+            var devices = enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active);
+            foreach (var device in devices)
             {
-                var caps = WaveOut.GetCapabilities(i);
-                comboBoxOutputDevices.Items.Add(new OutputDeviceItem { DeviceNumber = i, Name = caps.ProductName });
+                comboBoxOutputDevices.Items.Add(new OutputDeviceItem { DeviceId = device.ID, Name = device.FriendlyName });
             }
 
             if (comboBoxOutputDevices.Items.Count > 0)
@@ -542,14 +586,14 @@ public partial class MainForm : Form
                 comboBoxOutputDevices.SelectedIndex = 0;
                 var sel = comboBoxOutputDevices.SelectedItem as OutputDeviceItem;
                 if (sel != null)
-                    _selectedOutputDeviceNumber = sel.DeviceNumber;
+                    _selectedOutputDeviceId = sel.DeviceId;
                 else
-                    _selectedOutputDeviceNumber = -1;
+                    _selectedOutputDeviceId = string.Empty;
             }
             else
             {
-                // No devices found, leave default (-1)
-                _selectedOutputDeviceNumber = -1;
+                // No devices found, leave default (empty => fallback to WaveOutEvent)
+                _selectedOutputDeviceId = string.Empty;
             }
         }
         catch (Exception ex)
@@ -562,7 +606,7 @@ public partial class MainForm : Form
     {
         if (comboBoxOutputDevices.SelectedItem is OutputDeviceItem item)
         {
-            _selectedOutputDeviceNumber = item.DeviceNumber;
+            _selectedOutputDeviceId = item.DeviceId;
         }
     }
 }
